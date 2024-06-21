@@ -1,0 +1,7 @@
+---
+- name: Update everything
+  hosts: all
+  become: true
+  become_user: root
+  roles:
+    - admin/update

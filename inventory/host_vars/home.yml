@@ -1,0 +1,47 @@
+---
+# take-over
+#ansible_ssh_user: david
+
+# Informations
+type: machine
+architecture: amd64
+ansible_ssh_host: 192.168.0.15
+
+# Deployement roles
+roles_list:
+  - deploy/nfs/client
+  - configure/nfs/client
+  - deploy/service/lxc
+  - configure/lxc
+  - deploy/container
+
+# Configuration
+## NFS Client
+nfs_server: "192.168.0.10"
+nfs_mounts:
+  - { filename: remote-books,     target: /data/books,     path: /remote/books }
+  - { filename: remote-documents, target: /data/documents, path: /remote/documents }
+  - { filename: remote-games,     target: /data/games,     path: /remote/games }
+  - { filename: remote-music,     target: /data/music,     path: /remote/music }
+  - { filename: remote-videos,    target: /data/videos,    path: /remote/videos }
+
+## LXC Service
+lxc_default_apparmor_profile: lxc-container-default
+lxc_default_bridge: lxcbr0
+lxc_default_bridge_ip4: 10.1.1.254
+lxc_default_bridge_ip4_network: 10.1.1.0/24
+lxc_default_bridge_ip4_netmask: 255.255.255.0
+lxc_default_bridge_ip4_range: "10.1.1.1,10.1.1.253"
+lxc_default_mac_addr: fa:16:3e:xx:xx:xx
+
+lxc_default_directory: /opt/lxc
+
+lxc_min_subuid:     100000
+lxc_max_subuid: 1000000000
+lxc_min_subgid:     100000
+lxc_max_subgid: 1000000000
+
+## Containers
+containers_list:
+  #- { type: lxc, system: alpine, release: "3.20", store: loop, size: 2G, name: alpine-test }
+  - { type: lxc, system: alpine, release: "3.20", name: alpine-test, ip: "10.1.1.200" }

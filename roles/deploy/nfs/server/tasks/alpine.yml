@@ -1,0 +1,15 @@
+---
+# tasks file for nfs - server - alpine
+- name: Installing services packages
+  community.general.apk:
+    name:
+      - nfs-utils
+      - nfs-utils-openrc
+    state: latest
+
+# chercher le service a démarrer et activer
+#- name: Start NFS server service
+#  ansible.builtin.service:
+#    name: apache2
+#    state: started
+#    enabled: yes

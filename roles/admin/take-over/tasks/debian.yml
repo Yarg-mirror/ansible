@@ -1,0 +1,45 @@
+---
+# tasks file for take_over
+- name: Make sure Python is installed
+  ansible.builtin.raw:
+    python3 --version || apt-get install -y python3
+  register: cmd
+  changed_when: cmd != 0
+
+- name: Create ansible user
+  ansible.builtin.user:
+    name: ansible
+    shell: /bin/bash
+    system: true
+    home: /home/ansible
+    password: '*'
+    state: present
+
+- name: Set ansible user authorized key
+  ansible.posix.authorized_key:
+    key: "{{ lookup('file', 'keys/ansible_user_ed25519.pub') }}"
+    user: ansible
+    state: present
+
+- name: Remove recommends from APT installations
+  ansible.builtin.lineinfile:
+    create: true
+    line: APT::Install-Recommends "false";
+    path: /etc/apt/apt.conf.d/99recommends
+    state: present
+
+- name: Installation of needed packages
+  ansible.builtin.apt:
+    state: latest
+    pkg:
+      - sudo
+      - acl
+
+- name: Add ansible user to sudoers file
+  community.general.sudoers:
+    name: ansible
+    user: ansible
+    nopassword: true
+    commands: ALL
+    runas: "ALL:ALL"
+    state: present

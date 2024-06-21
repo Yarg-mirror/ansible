@@ -1,0 +1,40 @@
+---
+# tasks file for apache
+- name: Install required packages
+  community.general.apk:
+    name: "{{ apache_packages }}"
+    state: latest
+
+- name: Enable prefork module
+  ansible.builtin.replace:
+    path: /etc/apache2/httpd.conf
+    regexp: "^#LoadModule mpm_event_module modules/mod_mpm_event.so"
+    replace: "LoadModule mpm_event_module modules/mod_mpm_event.so"
+
+# TODO: remplacer par un template nettoyer
+- name: Disable event module
+  ansible.builtin.replace:
+    path: /etc/apache2/httpd.conf
+    regexp: "^LoadModule mpm_prefork_module modules/mod_mpm_prefork.so"
+    replace: "#LoadModule mpm_prefork_module modules/mod_mpm_prefork.so"
+
+- name: Enable rewrite module
+  ansible.builtin.replace:
+    path: /etc/apache2/httpd.conf
+    regexp: "^#LoadModule rewrite_module modules/mod_rewrite.so"
+    replace: "LoadModule rewrite_module modules/mod_rewrite.so"
+# TODO ####
+
+- name: Change /var/www directory ownership
+  ansible.builtin.file:
+    path: /var/www
+    state: directory
+    owner: apache
+    group: apache
+    recurse: yes
+
+- name: Enable apache service
+  ansible.builtin.service:
+    name: apache2
+    state: started
+    enabled: yes

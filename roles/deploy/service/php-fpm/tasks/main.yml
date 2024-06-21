@@ -1,0 +1,30 @@
+---
+# tasks file for php-fpm
+- name: Install required packages
+  community.general.apk:
+    name: "{{ php_packages }}"
+    state: latest
+
+- name: Setting php-fpm user
+  ansible.builtin.replace:
+    path: /etc/php83/php-fpm.d/www.conf
+    regexp: nobody
+    replace: apache
+
+- name: Configure apache for using php-fpm
+  ansible.builtin.template:
+     src: php83.conf.j2
+     dest: /etc/apache2/conf.d/php82.conf
+     owner: apache
+     group: apache
+
+- name: Reload apache configuration
+  ansible.builtin.service:
+    name: apache2
+    state: reloaded
+
+- name: Enable php-fpm service
+  ansible.builtin.service:
+    name: php-fpm83
+    state: started
+    enabled: yes

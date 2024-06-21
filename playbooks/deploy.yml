@@ -1,0 +1,12 @@
+---
+- name: Deploying services on systems
+  hosts: all
+  serial: 1
+  become: true
+  tasks:
+    - name: Loading roles
+      ansible.builtin.include_role:
+        name: "{{ role }}"
+      loop: "{{ roles_list }}"
+      loop_control:
+        loop_var: role

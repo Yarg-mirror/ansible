@@ -1,0 +1,12 @@
+---
+# tasks file for lxc
+- name: Install LXC packages
+  ansible.builtin.apt:
+    pkg:
+      - python3-lxc
+      - lxc
+      - lxcfs
+      - lxc-templates
+      - bridge-utils
+      - uidmap
+    state: latest

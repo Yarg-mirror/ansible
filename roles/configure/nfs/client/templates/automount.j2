@@ -1,0 +1,8 @@
+[Unit]
+Description=Automount remote NFS directory for {{ nfs_server }}:{{ mount.target }}
+
+[Automount]
+Where={{ mount.path }}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,17 @@
+---
+# tasks file for update
+- name: Update system packages list
+  register: updated
+  community.general.apk:
+    update_cache: true
+
+- name: Upgrade system and apps
+  register: upgraded
+  when: updated is changed
+  community.general.apk:
+    upgrade: true
+
+#- name: Reboot server
+#  when: upgraded is changed and ansible_connection != 'local'
+#  ansible.builtin.reboot:
+#    reboot_timeout: 90

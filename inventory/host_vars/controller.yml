@@ -1,0 +1,7 @@
+---
+# Informations
+type: machine
+ansible_connection: local
+
+packages:
+  - python3-psycopg2

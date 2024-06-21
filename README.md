@@ -6,8 +6,6 @@ Voici un projet contenant la compilation de mes différents scripts [ansible](ht
 
 Le principe de ce projet est d'utiliser une machine (Physique, VM, Conteneur) définie comme "contrôleur" qui aura pour but de déployer, gérer et maintenir les différentes machines qu'il créera ou ajoutera à son réseau.
 
-Le contrôleur pourra également contenir les différents services critiques utilisé par les autres systèmes, comme un serveur de temps permettant de tous les synchroniser, DNS, ou encore LDAP pour gérer l'authentification globale. Il permettra également de déployer un nouveau contrôleur à partir de lui-même pour permettre la création de nouveaux réseaux rapidement et facilement.
-
 Le contrôleur ayant les pleins pouvoir sur la totalité des systèmes qu'il gèrera, il est important de prendre en compte sa sécurité et de limiter les possibilitées d'accès à celui-ci.
 
 Cependant, il n'est pas obligatoire de le mettre en place et de l'utiliser, tous les roles et playbooks présents peuvent également être utilisé depuis n'importe quelle instance ansible.
@@ -81,5 +79,6 @@ Une fois connecté en tant qu'utilisateur "ansible", pour l'execution du playboo
 ```
 git clone https://github.com/Yarg-mirror/ansible.git /opt/ansible
 ln /opt/ansible/ansible.cfg ~/
-ansible-playbook playbooks/self-deploy.yml -K
+ansible-playbook playbooks/take-over.yml  -l controller -Kk
+ansible-playbook playbooks/deploy.yml  -l controller
 ```

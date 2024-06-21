@@ -1,0 +1,8 @@
+lxc.start.auto = 1
+
+lxc.net.0.type = veth
+lxc.net.0.link = {{ lxc_default_bridge }}
+lxc.net.0.hwaddr = {{ lxc_default_mac_addr }}
+lxc.net.0.flags = up
+
+lxc.apparmor.profile = {{ lxc_default_apparmor_profile }}

@@ -1,0 +1,46 @@
+---
+# tasks file for postgresql - alpine
+- name: Install system packages
+  community.general.apk:
+    name: py3-psycopg2
+    state: latest
+
+- name: Install PostgreSQL version "{{ postgresql_version }}"
+  community.general.apk:
+    name: "postgresql{{ postgresql_version }}"
+    state: latest
+
+- name: Setting ICU locale to french
+  ansible.builtin.replace:
+    path: /etc/init.d/postgresql
+    regexp: en-001-x-icu
+    replace: fr-x-icu
+
+- name: Initialize PostgreSQL
+  ansible.builtin.shell:
+    cmd: service postgresql setup
+    creates: "/var/lib/postgresql/{{ postgresql_version }}/data/pg_hba.conf"
+
+- name: Enable PostgreSQL start on boot
+  ansible.builtin.service:
+    name: postgresql
+    enabled: yes
+
+- name: configure pg_hba.conf
+  ansible.builtin.lineinfile:
+    path: "/var/lib/postgresql/{{ postgresql_version }}/data/pg_hba.conf"
+    insertafter: '# IPv4 local connections:'
+    line: host    all             all              10.0.3.0/24            trust
+
+- name: configure postgresql.conf
+  ansible.builtin.replace:
+    path: "/var/lib/postgresql/{{ postgresql_version }}/data/postgresql.conf"
+    regexp: \#listen_addresses = 'localhost'
+    replace: listen_addresses = '*'
+
+- name: Start PostgreSQL start on boot
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+
+

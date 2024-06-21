@@ -1,0 +1,29 @@
+---
+# tasks file for hand-over
+- name: Remove ansible home directory
+  ansible.builtin.file:
+    path: /home/ansible
+    state: absent
+
+- name: Restore APT install-recommands
+  ansible.builtin.file:
+    path: /etc/apt/apt.conf.d/99recommends
+    state: absent
+
+- name: Remove ansible user from the sudoers file
+  community.general.sudoers:
+    name: ansible
+    user: ansible
+    nopassword: true
+    commands: ALL
+    runas: "ALL:ALL"
+    state: absent
+
+- name: Delete ansible user
+  ansible.builtin.user:
+    name: ansible
+    shell: /bin/bash
+    system: true
+    home: /home/ansible
+    password: '*'
+    state: absent

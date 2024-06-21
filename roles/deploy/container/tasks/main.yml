@@ -1,0 +1,8 @@
+---
+# tasks file for container
+- name: Deploying container
+  ansible.builtin.include_tasks:
+    file: "deploy-container.yml"
+  loop: "{{ containers_list }}"
+  loop_control:
+    loop_var: container

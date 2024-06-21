@@ -1,0 +1,90 @@
+---
+# tasks file for container
+
+# Mettre le template dans /etc/lxc/conf.d/{container.name}
+
+- name: "Creating container {{ container.name }}"
+  community.general.lxc_container:
+    name: "{{ container.name }}"
+    template: download
+    template_options: "--dist alpine --arch {{ architecture }} --release {{ container.release }}"
+    state: started
+  when: container.store is not defined
+
+- name: "Creating container {{ container.name }} with backing store {{ container.store }} of {{ container.size }}"
+  community.general.lxc_container:
+    name: "{{ container.name }}"
+    backing_store: "{{ container.store }}"
+    fs_size: "{{ container.size }}"
+    template: download
+    template_options: "--dist alpine --arch {{ architecture }} --release {{ container.release }}"
+    state: started
+  when: container.store is defined
+
+- name: Waiting for container network to be up
+  ansible.builtin.pause:
+    seconds: 5
+
+- name: "Installing required bash package inside {{ container.name }}"
+  ansible.builtin.shell: |
+    lxc-attach --clear-env --name {{ container.name }} -- apk add bash
+
+- name: Installing defaults packages
+  community.general.lxc_container:
+    name: "{{ container.name }}"
+    container_command: |
+      apk add python3 sudo openssh
+      rc-update add sshd default
+      service sshd start
+
+- name: Create ansible user
+  community.general.lxc_container:
+    name: "{{ container.name }}"
+    container_command: |
+      adduser -s /bin/ash -D ansible
+      echo 'ansible:*' | chpasswd -e
+      echo 'ansible ALL=(ALL:ALL)NOPASSWD: ALL' | tee /etc/sudoers.d/ansible
+
+- name: Adding ansible user SSH public key
+  vars:
+    public_key: "{{ lookup('file', 'keys/ansible_user_ed25519.pub', errors='warn') }}"
+  community.general.lxc_container:
+    name: "{{ container.name }}"
+    container_command: |
+      mkdir /home/ansible/.ssh
+      echo "{{ public_key }}" | tee /home/ansible/.ssh/authorized_keys
+      chown -R ansible:ansible /home/ansible/.ssh
+      chmod 500 /home/ansible/.ssh/authorized_keys
+
+#- name: Locale and timezone setting in "{{ container }}"
+#  ansible.builtin.shell: |
+#    lxc-attach --clear-env --name {{ container }} -- apk add musl musl-utils musl-locales icu-data-full tzdata
+#    echo export CHARSET=fr_FR.UTF-8 | lxc-attach --clear-env --name {{ container }} -- tee /etc/profile.d/20locale.sh
+#    echo export LANG=fr_FR.UTF-8 | lxc-attach --clear-env --name {{ container }} -- tee -a /etc/profile.d/20locale.sh
+#    echo export LANGUAGE=fr | lxc-attach --clear-env --name {{ container }} -- tee -a /etc/profile.d/20locale.sh
+#    echo export LC_ALL=fr_FR.UTF-8 | lxc-attach --clear-env --name {{ container }} -- tee -a /etc/profile.d/20locale.sh
+#    echo export TZ=Europe/Paris | lxc-attach --clear-env --name {{ container }} -- tee -a /etc/profile.d/20locale.sh
+#    lxc-attach --clear-env --name {{ container }} -- ln -s /usr/share/zoneinfo/Europe/Paris /etc/localtime
+#    echo Europe/Paris | lxc-attach --clear-env --name {{ container }} -- tee /etc/timezone
+
+# A deplaycer dans deploy/lxc
+#- name: Setting lxc-net dnsmasq configuration
+#  ansible.builtin.lineinfile:
+#    create: true
+#    path: /etc/lxc/dnsmasq.conf
+#    search_string: "dhcp-host={{ entry.name }}"
+#    line: "dhcp-host={{ entry.name }},{{ entry.ip }}"
+#    state: present
+#  loop: "{{ sl_dnsmasq }}"
+#  loop_control:
+#    loop_var: entry
+#  register: dnsmasq
+#
+#- name: Restart dnsmasq daemon (lxc-net)
+#  ansible.builtin.service:
+#    name: lxc-net
+#    state: restarted
+#    enabled: true
+#  when: dnsmasq.changed
+# FIN # A deplaycer dans deploy/lxc
+

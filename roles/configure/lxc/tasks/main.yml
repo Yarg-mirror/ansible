@@ -1,0 +1,55 @@
+---
+# tasks file for lxc
+- name: Setting subuid file
+  ansible.builtin.template:
+    src: subuid.j2
+    dest: "/etc/subuid"
+    mode: '644'
+
+- name: Setting subgid file
+  ansible.builtin.template:
+    src: subgid.j2
+    dest: "/etc/subgid"
+    mode: '644'
+
+- name: Setting LXC default configuration
+  ansible.builtin.template:
+    src: lxc.conf.j2
+    dest: /etc/lxc/lxc.conf
+    mode: '644'
+
+- name: Setting LXC containers default configuration
+  ansible.builtin.template:
+    src: default.conf.j2
+    dest: /etc/lxc/default.conf
+    mode: '644'
+
+- name: Setting lxc-net default configuration
+  ansible.builtin.template:
+    src: lxc-net.j2
+    dest: /etc/default/lxc-net
+    mode: '644'
+
+- name: "Creating empty /etc/lxc/dnsmasq.conf file"
+  ansible.builtin.file:
+    path: "/etc/lxc/dnsmasq.conf"
+    state: touch
+    mode: '644'
+
+- name: "Creating {{ lxc_default_directory }} directory"
+  ansible.builtin.file:
+    path: "{{ lxc_default_directory }}"
+    state: directory
+    mode: '755'
+
+- name: Creating /etc/lxc/conf.d/ directory
+  ansible.builtin.file:
+    path: /etc/lxc/conf.d/
+    state: directory
+    mode: '755'
+
+- name: Restart dnsmasq daemon (lxc-net)
+  ansible.builtin.service:
+    name: lxc-net
+    state: restarted
+    enabled: true

@@ -1,0 +1,5 @@
+---
+# tasks file for postgresql - debian
+- name: Applying OS related tasks
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_os_family | lower }}.yml"

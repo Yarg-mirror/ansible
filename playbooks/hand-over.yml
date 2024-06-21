@@ -1,0 +1,8 @@
+---
+- name: Give back the system
+  hosts: all
+  become: true
+  become_user: root
+  become_method: su
+  roles:
+    - admin/hand-over

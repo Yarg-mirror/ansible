@@ -1,0 +1,10 @@
+[Unit]
+Description=Remote NFS directory for {{ nfs_server }}:{{ mount.target }}
+
+[Mount]
+What={{ nfs_server }}:{{ mount.target }}
+Where={{ mount.path }}
+Type=nfs
+
+[Install]
+WantedBy=multi-user.target

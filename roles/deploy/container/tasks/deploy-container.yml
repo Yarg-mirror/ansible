@@ -1,0 +1,21 @@
+---
+# tasks file for container
+
+- name: Updating dnsmasq configuration
+  ansible.builtin.lineinfile:
+    path: /etc/lxc/dnsmasq.conf
+    search_string: "dhcp-host={{ container.name }}"
+    line: "dhcp-host={{ container.name }},{{ container.ip }}"
+    state: present
+  when: container.type == "lxc"
+
+- name: Restart dnsmasq daemon (lxc-net)
+  ansible.builtin.service:
+    name: lxc-net
+    state: restarted
+    enabled: true
+
+- name: Deploying container
+  ansible.builtin.include_tasks:
+    file: "{{ container.system }}.yml"
+  when: container.type == "lxc"

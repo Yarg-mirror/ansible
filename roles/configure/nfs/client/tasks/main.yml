@@ -1,0 +1,12 @@
+---
+# tasks file for nfs - client
+- name: Deploying automounts
+  ansible.builtin.include_tasks:
+    file: mounts.yml
+  loop: "{{ nfs_mounts }}"
+  loop_control:
+    loop_var: mount
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd_service:
+    daemon_reload: true

@@ -1,0 +1,7 @@
+---
+# tasks file for nfs - client - debian
+- name: Installing services packages
+  ansible.builtin.apt:
+    pkg:
+      - nfs-common
+    state: latest

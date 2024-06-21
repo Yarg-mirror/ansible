@@ -1,0 +1,8 @@
+---
+# tasks file for nfs - client - alpine
+- name: Installing services packages
+  community.general.apk:
+    name:
+      - nfs-utils
+      - nfs-utils-openrc
+    state: latest
